@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EscadinhaPro</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f172a;
+    --bg2: #1e293b;
+    --bg3: #0f172a;
+    --border: #334155;
+    --text: #f1f5f9;
+    --text2: #94a3b8;
+    --text3: #64748b;
+    --green: #10b981;
+    --green-dark: #059669;
+    --red: #e11d48;
+    --radius: 12px;
+  }
+  body.light {
+    --bg: #f1f5f9;
+    --bg2: #ffffff;
+    --bg3: #f8fafc;
+    --border: #e2e8f0;
+    --text: #0f172a;
+    --text2: #475569;
+    --text3: #94a3b8;
+  }
+  body.light .nav { background: #ffffff; border-color: #e2e8f0; }
+  body.light .challenge-card { background: #ffffff; }
+  body.light .stat-card { background: #ffffff; }
+  body.light .hist-table th { background: #f8fafc; }
+  body.light .confirm-box { background: #ffffff; }
+  body.light footer { border-color: #e2e8f0; color: #94a3b8; }
+  html, body { min-height: 100%; background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif; font-size: 15px; }
+  a { color: inherit; }
+
+  /* NAV */
+  .nav { background: var(--bg); border-bottom: 1px solid var(--border); padding: 0 1.5rem; height: 56px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+  .logo { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; cursor: pointer; text-decoration: none; }
+  .logo-icon { width: 32px; height: 32px; background: linear-gradient(135deg, #059669, #10b981); border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo-accent { color: #10b981; }
+
+  /* LAYOUT */
+  .main { padding: 1.5rem; max-width: 1000px; margin: 0 auto; }
+
+  /* BUTTONS */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; border: none; transition: background 0.15s, opacity 0.15s; line-height: 1; }
+  .btn-primary { background: var(--green-dark); color: white; }
+  .btn-primary:hover { background: #047857; }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: #cbd5e1; }
+  .btn-outline:hover { background: var(--bg2); }
+  .btn-ghost { background: transparent; border: none; color: var(--text2); }
+  .btn-ghost:hover { color: var(--text); background: var(--bg2); }
+  .btn-danger { background: var(--red); color: white; }
+  .btn-danger:hover { background: #be123c; }
+  .btn-sm { padding: 5px 10px; font-size: 12px; }
+  .btn-nav { background: transparent; border: 1px solid var(--border); color: var(--text2); padding: 6px 14px; border-radius: 8px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 6px; }
+  .btn-nav:hover { background: var(--bg2); color: var(--text); }
+
+  /* CARDS */
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  .card-p { padding: 1.25rem; }
+
+  /* BADGES */
+  .badge { display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+  .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+  .badge-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.2); }
+
+  /* PROGRESS */
+  .progress-bar { height: 6px; background: #334155; border-radius: 999px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 999px; transition: width 0.5s ease; }
+
+  /* GRID */
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 12px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2,1fr); gap: 12px; }
+  @media (max-width: 700px) {
+    .grid-3 { grid-template-columns: 1fr; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .details-grid { grid-template-columns: 1fr !important; }
+  }
+
+  /* STAT CARDS */
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; }
+  .stat-icon { width: 44px; height: 44px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; margin-bottom: 12px; }
+  .stat-label { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+  .stat-value { font-size: 24px; font-weight: 700; color: var(--text); }
+  .stat-sub { font-size: 11px; margin-top: 4px; display: flex; align-items: center; gap: 3px; }
+
+  /* SECTION TITLE */
+  .section-title { font-size: 15px; font-weight: 600; color: #e2e8f0; display: flex; align-items: center; gap: 8px; margin-bottom: 1rem; }
+
+  /* CHALLENGE CARD */
+  .challenge-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem; cursor: pointer; transition: border-color 0.15s; }
+  .challenge-card:hover { border-color: #475569; }
+
+  /* TABS */
+  .tab-bar { display: flex; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; overflow-x: auto; }
+  .tab { padding: 10px 20px; font-size: 13px; cursor: pointer; border-bottom: 2px solid transparent; color: var(--text3); background: none; border-left: none; border-right: none; border-top: none; transition: all 0.15s; white-space: nowrap; }
+  .tab.active { border-bottom-color: var(--green); color: #34d399; }
+  .tab:hover:not(.active) { color: #e2e8f0; }
+
+  /* INPUTS */
+  .input-group { margin-bottom: 1rem; }
+  .input-label { font-size: 12px; color: var(--text2); margin-bottom: 4px; display: block; }
+  .input-field { width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; font-size: 14px; color: var(--text); outline: none; transition: border-color 0.15s; }
+  .input-field:focus { border-color: var(--green); }
+
+  /* LADDER */
+  .ladder-step { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; position: relative; }
+  .ladder-step:not(:last-child)::before { content: ''; position: absolute; left: 17px; top: 36px; width: 2px; height: 12px; background: var(--border); }
+  .step-dot { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; }
+  .step-content { flex: 1; background: var(--bg3); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; }
+  .step-done .step-dot { background: var(--green-dark); color: white; }
+  .step-done .step-content { border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.05); }
+  .step-current .step-dot { background: var(--bg3); border: 2px solid var(--green); color: var(--green); }
+  .step-current .step-content { border-color: rgba(16,185,129,0.4); }
+  .step-failed .step-dot { background: var(--red); color: white; }
+  .step-failed .step-content { border-color: rgba(239,68,68,0.3); background: rgba(239,68,68,0.05); }
+  .step-future .step-dot { background: var(--bg2); color: #475569; border: 1px solid var(--border); }
+  .step-future .step-content { opacity: 0.4; }
+
+  /* RESULT BTNS */
+  .result-btn { flex: 1; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 700; cursor: pointer; border: none; transition: opacity 0.15s; }
+  .result-btn:hover { opacity: 0.85; }
+  .green-btn { background: var(--green-dark); color: white; }
+  .red-btn { background: var(--red); color: white; }
+
+  /* PROJECTION BOX */
+  .projection-box { background: rgba(5,150,105,0.08); border: 1px solid rgba(5,150,105,0.2); border-radius: 10px; padding: 1rem; display: flex; justify-content: space-between; align-items: center; margin-top: 1rem; gap: 1rem; }
+
+  /* CONFIRM MODAL */
+  .confirm-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: none; align-items: center; justify-content: center; z-index: 100; padding: 1rem; }
+  .confirm-overlay.open { display: flex; }
+  .confirm-box { background: var(--bg2); border: 1px solid #475569; border-radius: 14px; padding: 1.5rem; max-width: 400px; width: 100%; }
+
+  /* EMPTY */
+  .empty-state { text-align: center; padding: 3rem 1rem; }
+  .empty-icon { font-size: 40px; margin-bottom: 1rem; opacity: 0.3; }
+
+  /* TABLE */
+  .hist-table { width: 100%; font-size: 13px; border-collapse: collapse; }
+  .hist-table th { padding: 10px 16px; text-align: left; color: var(--text3); font-size: 11px; text-transform: uppercase; background: var(--bg3); }
+  .hist-table td { padding: 10px 16px; border-bottom: 1px solid var(--bg3); }
+
+  /* CHART BARS */
+  .chart-wrap { height: 160px; display: flex; align-items: flex-end; gap: 3px; }
+  .chart-bar { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; cursor: default; }
+  .chart-bar-fill { width: 100%; background: rgba(16,185,129,0.2); border-top: 1px solid rgba(16,185,129,0.4); border-radius: 2px 2px 0 0; min-height: 4px; }
+  .chart-bar-label { font-size: 10px; color: var(--text3); margin-top: 4px; }
+
+  /* GLOW */
+  .glow-green { position: absolute; right: -60px; top: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(16,185,129,0.08); pointer-events: none; }
+  .glow-red { position: absolute; right: -60px; top: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(239,68,68,0.08); pointer-events: none; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* CELEBRATION */
+  .celebration-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); display: none; align-items: center; justify-content: center; z-index: 200; padding: 1rem; }
+  .celebration-overlay.open { display: flex; }
+  .celebration-box { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border: 1px solid rgba(16,185,129,0.4); border-radius: 20px; padding: 2.5rem 2rem; max-width: 460px; width: 100%; text-align: center; position: relative; overflow: hidden; animation: celebPop 0.5s cubic-bezier(0.175,0.885,0.32,1.275); }
+  @keyframes celebPop { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .celebration-box::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 0%, rgba(16,185,129,0.15) 0%, transparent 70%); pointer-events: none; }
+  .confetti { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; }
+  .confetti-piece { position: absolute; width: 8px; height: 8px; border-radius: 2px; top: -10px; animation: confettiFall linear infinite; }
+  @keyframes confettiFall { 0% { transform: translateY(-10px) rotate(0deg); opacity: 1; } 100% { transform: translateY(500px) rotate(720deg); opacity: 0; } }
+  .trophy-icon { font-size: 72px; display: block; margin-bottom: 1rem; animation: trophyBounce 1s ease infinite alternate; }
+  @keyframes trophyBounce { from { transform: translateY(0) scale(1); } to { transform: translateY(-10px) scale(1.08); } }
+  .celeb-title { font-size: 28px; font-weight: 800; color: #f1f5f9; margin-bottom: 0.5rem; line-height: 1.2; }
+  .celeb-sub { font-size: 14px; color: #94a3b8; margin-bottom: 1.5rem; line-height: 1.6; }
+  .celeb-stats { display: flex; justify-content: center; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+  .celeb-stat { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 12px; padding: 10px 18px; }
+  .celeb-stat-val { font-size: 20px; font-weight: 700; color: #34d399; }
+  .celeb-stat-label { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .celeb-btn { background: linear-gradient(135deg, #059669, #10b981); color: white; border: none; border-radius: 12px; padding: 14px 32px; font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; box-shadow: 0 0 30px rgba(16,185,129,0.3); }
+  .celeb-btn:hover { opacity: 0.85; }
+  .stars { font-size: 22px; letter-spacing: 4px; margin-bottom: 1rem; animation: starSpin 2s ease-in-out infinite; }
+  @keyframes starSpin { 0%,100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <a class="logo" onclick="goTo('dashboard')">
+    <div class="logo-icon">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+    </div>
+    <span>Escadinha<span class="logo-accent">Pro</span></span>
+  </a>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <button class="btn-nav" onclick="goTo('dashboard')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Início
+    </button>
+    <button class="btn-nav" onclick="toggleTheme()" id="theme-btn" title="Alternar tema">
+      <svg id="theme-icon-moon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="theme-icon-sun" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none;"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      Tema
+    </button>
+  </div>
+</nav>
+
+<main class="main" id="main-content"></main>
+
+<footer style="text-align:center;padding:1.5rem;font-size:12px;color:#475569;border-top:1px solid #1e293b;margin-top:2rem;">
+  Desenvolvido por <strong style="color:#64748b;">Gentil Neto</strong>
+</footer>
+
+<div class="celebration-overlay" id="celeb-overlay">
+  <div class="celebration-box" id="celeb-box">
+    <div class="confetti" id="confetti-container"></div>
+    <span class="trophy-icon">🏆</span>
+    <div class="stars">⭐ ⭐ ⭐</div>
+    <div class="celeb-title" id="celeb-title">Desafio Concluído!</div>
+    <div class="celeb-sub" id="celeb-sub">Você completou todos os degraus e transformou sua banca com disciplina e foco. Isso é resultado de verdade!</div>
+    <div class="celeb-stats" id="celeb-stats"></div>
+    <button class="celeb-btn" onclick="closeCeleb()">🎯 Continuar Crescendo</button>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span style="font-size:16px;font-weight:600;" id="confirm-title"></span>
+    </div>
+    <p style="font-size:13px;color:#94a3b8;margin-bottom:1.25rem;" id="confirm-msg"></p>
+    <div style="display:flex;justify-content:flex-end;gap:8px;">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancelar</button>
+      <button class="btn btn-danger" onclick="doConfirm()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  document.getElementById('theme-icon-moon').style.display = isLight ? 'none' : 'inline';
+  document.getElementById('theme-icon-sun').style.display = isLight ? 'inline' : 'none';
+  localStorage.setItem('@EscadinhaPro:theme', isLight ? 'light' : 'dark');
+}
+
+const fmtCur = v => new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL'}).format(v);
+const fmtDate = d => new Date(d).toLocaleDateString('pt-BR');
+const genId = () => Math.random().toString(36).substr(2,9);
+
+let challenges = [];
+let view = 'dashboard';
+let activeId = null;
+let activeTab = 'escada';
+let confirmCb = null;
+
+function save() { try { localStorage.setItem('@EscadinhaPro:challenges', JSON.stringify(challenges)); } catch(e){} }
+function load() { try { const d = localStorage.getItem('@EscadinhaPro:challenges'); if(d) challenges = JSON.parse(d); } catch(e){} }
+
+function showConfirm(title, msg, cb) {
+  document.getElementById('confirm-title').textContent = title;
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCb = cb;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm() { document.getElementById('confirm-overlay').classList.remove('open'); confirmCb = null; }
+function doConfirm() { if(confirmCb) confirmCb(); closeConfirm(); }
+
+function goTo(v, id) {
+  view = v;
+  if(id) { activeId = id; activeTab = 'escada'; }
+  render();
+  window.scrollTo(0,0);
+}
+
+function render() {
+  const el = document.getElementById('main-content');
+  if(view === 'dashboard') el.innerHTML = renderDashboard();
+  else if(view === 'new') el.innerHTML = renderForm();
+  else if(view === 'details') el.innerHTML = renderDetails();
+}
+
+/* ---- DASHBOARD ---- */
+function renderDashboard() {
+  const active = challenges.filter(c => c.status === 'ativo');
+  const done = challenges.filter(c => c.status === 'concluido').length;
+  const failed = challenges.filter(c => c.status === 'falhou').length;
+  const totalCur = challenges.reduce((a,c)=>a+c.saldoAtual,0);
+  const totalInv = challenges.reduce((a,c)=>a+c.saldoInicial,0);
+  const profit = totalCur - totalInv;
+  const rate = challenges.length ? Math.round((done/challenges.length)*100) : 0;
+  const profitPos = profit >= 0;
+
+  let cardsHtml;
+  if(active.length === 0) {
+    cardsHtml = `<div class="card card-p empty-state">
+      <div class="empty-icon">🏆</div>
+      <h3 style="font-size:16px;font-weight:600;color:#e2e8f0;margin-bottom:8px;">Nenhum desafio ativo</h3>
+      <p style="font-size:13px;color:#64748b;margin-bottom:1rem;">Comece uma nova escadinha para transformar pouco capital em uma grande banca.</p>
+      <button class="btn btn-primary" onclick="goTo('new')">Criar meu primeiro desafio</button>
+    </div>`;
+  } else {
+    cardsHtml = `<div class="grid-3">${active.map(c => {
+      const pct = Math.round((c.etapaAtual/c.totalEtapas)*100);
+      const crescimento = c.saldoInicial > 0 ? ((c.saldoAtual - c.saldoInicial) / c.saldoInicial * 100) : 0;
+      const crescPos = crescimento >= 0;
+      return `<div class="challenge-card" onclick="goTo('details','${c.id}')">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;">
+          <div>
+            <div style="font-size:15px;font-weight:600;color:#f1f5f9;margin-bottom:3px;">${escHtml(c.nome)}</div>
+            <div style="font-size:11px;color:#64748b;">Meta: ${fmtCur(c.meta)}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <span class="badge badge-warning">Ativo</span>
+            <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();deleteChallenge('${c.id}')" title="Excluir" style="padding:4px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+            </button>
+          </div>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:10px;">
+          <div style="flex:1;background:#0f172a;border-radius:8px;padding:7px 10px;text-align:center;">
+            <div style="font-size:10px;color:#64748b;margin-bottom:2px;">Crescimento</div>
+            <div style="font-size:14px;font-weight:700;color:${crescPos?'#34d399':'#f87171'};">${crescPos?'+':''}${crescimento.toFixed(1)}%</div>
+          </div>
+          <div style="flex:1;background:#0f172a;border-radius:8px;padding:7px 10px;text-align:center;">
+            <div style="font-size:10px;color:#64748b;margin-bottom:2px;">Faltam</div>
+            <div style="font-size:14px;font-weight:700;color:#60a5fa;">${(c.totalEtapas - c.etapaAtual)} degrau${(c.totalEtapas - c.etapaAtual) !== 1 ? 's' : ''}</div>
+          </div>
+        </div>
+        <div style="margin-bottom:8px;">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:#64748b;margin-bottom:4px;">
+            <span>Etapa ${c.etapaAtual} de ${c.totalEtapas}</span>
+            <span style="color:#34d399;">${pct}%</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:#10b981;"></div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid #0f172a;">
+          <div>
+            <div style="font-size:11px;color:#64748b;">Saldo Atual</div>
+            <div style="font-size:15px;font-weight:600;">${fmtCur(c.saldoAtual)}</div>
+          </div>
+          <span style="font-size:12px;color:#10b981;">Ver detalhes →</span>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  const arrowUp = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 17 17 7"/><polyline points="7 7 17 7 17 17"/></svg>`;
+  const arrowDown = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 7 17 17"/><polyline points="17 17 7 17 7 7"/></svg>`;
+
+  return `
+    <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px;margin-bottom:1.5rem;">
+      <div>
+        <h1 style="font-size:26px;font-weight:700;color:#f1f5f9;">Dashboard</h1>
+        <p style="font-size:13px;color:#64748b;">Acompanhe suas escadinhas e lucros.</p>
+      </div>
+      <button class="btn btn-primary" onclick="goTo('new')">+ Nova Escadinha</button>
+    </div>
+    <div class="grid-3" style="margin-bottom:1.5rem;">
+      <div class="stat-card" style="border-color:rgba(16,185,129,0.2);background:rgba(16,185,129,0.04);">
+        <div class="stat-icon" style="background:rgba(16,185,129,0.1);">💰</div>
+        <div class="stat-label">Saldo Atual (Todos)</div>
+        <div class="stat-value">${fmtCur(totalCur)}</div>
+        <div class="stat-sub" style="color:${profitPos?'#34d399':'#f87171'};">${profitPos?arrowUp:arrowDown}${profitPos?'+':''}${fmtCur(profit)} lucro global</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(59,130,246,0.1);">📊</div>
+        <div class="stat-label">Desafios Ativos</div>
+        <div class="stat-value">${active.length}</div>
+        <div class="stat-sub" style="color:#64748b;">em andamento agora</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon" style="background:rgba(245,158,11,0.1);">🎯</div>
+        <div class="stat-label">Taxa de Sucesso</div>
+        <div class="stat-value">${rate}%</div>
+        <div class="stat-sub" style="color:#64748b;">${done} concluídos / ${failed} falhos</div>
+      </div>
+    </div>
+    <div class="section-title">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Escadinhas em Andamento
+    </div>
+    ${cardsHtml}
+    ${renderCompletedHistory()}`;
+}
+
+function renderCompletedHistory() {
+  const completed = challenges.filter(c => c.status === 'concluido');
+  if(completed.length === 0) return '';
+
+  const rows = completed.map(c => {
+    const lucro = c.saldoAtual - c.saldoInicial;
+    const mult = c.saldoInicial > 0 ? (c.saldoAtual / c.saldoInicial).toFixed(2) : '—';
+    const dataFim = c.apostas.length ? fmtDate(c.apostas[c.apostas.length-1].data) : '—';
+    return `<tr style="border-bottom:1px solid #0f172a;">
+      <td style="padding:10px 16px;font-weight:600;color:#f1f5f9;">${escHtml(c.nome)}</td>
+      <td style="padding:10px 16px;font-family:monospace;color:#94a3b8;">${fmtCur(c.saldoInicial)}</td>
+      <td style="padding:10px 16px;font-family:monospace;color:#34d399;font-weight:700;">${fmtCur(c.saldoAtual)}</td>
+      <td style="padding:10px 16px;color:#34d399;font-weight:700;">+${fmtCur(lucro)}</td>
+      <td style="padding:10px 16px;color:#60a5fa;">${mult}x</td>
+      <td style="padding:10px 16px;color:#64748b;">${c.totalEtapas} degraus</td>
+      <td style="padding:10px 16px;color:#64748b;">${dataFim}</td>
+      <td style="padding:10px 16px;">
+        <button class="btn btn-ghost btn-sm" onclick="deleteChallenge('${c.id}')" style="color:#f87171;padding:4px 8px;">🗑</button>
+      </td>
+    </tr>`;
+  }).join('');
+
+  return `
+    <div class="section-title" style="margin-top:2rem;">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      Desafios Concluídos
+    </div>
+    <div class="card" style="overflow-x:auto;">
+      <table style="width:100%;font-size:13px;border-collapse:collapse;">
+        <thead style="background:#0f172a;">
+          <tr style="color:#64748b;font-size:11px;text-transform:uppercase;">
+            <th style="padding:10px 16px;text-align:left;">Nome</th>
+            <th style="padding:10px 16px;text-align:left;">Capital Inicial</th>
+            <th style="padding:10px 16px;text-align:left;">Saldo Final</th>
+            <th style="padding:10px 16px;text-align:left;">Lucro</th>
+            <th style="padding:10px 16px;text-align:left;">Múltiplo</th>
+            <th style="padding:10px 16px;text-align:left;">Etapas</th>
+            <th style="padding:10px 16px;text-align:left;">Concluído em</th>
+            <th style="padding:10px 16px;"></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+/* ---- FORM ---- */
+function renderForm() {
+  return `
+    <div style="max-width:580px;margin:0 auto;">
+      <button class="btn btn-ghost" onclick="goTo('dashboard')" style="margin-bottom:1rem;">← Voltar</button>
+      <div class="card card-p">
+        <h2 style="font-size:20px;font-weight:700;color:#f1f5f9;margin-bottom:4px;">🏆 Criar Nova Escadinha</h2>
+        <p style="font-size:13px;color:#64748b;margin-bottom:1.5rem;">Configure seu desafio. O segredo é a consistência.</p>
+
+        <div class="input-group">
+          <label class="input-label" for="f-nome">Nome do Desafio</label>
+          <input class="input-field" id="f-nome" placeholder="Ex: Alavancagem NBA..." oninput="calcMeta()">
+        </div>
+        <div class="input-group">
+          <label class="input-label" for="f-inicial">Capital Inicial (R$)</label>
+          <input class="input-field" id="f-inicial" type="number" value="10" min="1" step="0.01" oninput="calcMeta()">
+        </div>
+        <div class="grid-2" style="margin-bottom:0;">
+          <div class="input-group">
+            <label class="input-label" for="f-etapas">Total de Etapas (Degraus)</label>
+            <input class="input-field" id="f-etapas" type="number" value="10" min="1" oninput="calcMeta()">
+          </div>
+          <div class="input-group">
+            <label class="input-label" for="f-odd">Odd Média por Etapa</label>
+            <input class="input-field" id="f-odd" type="number" value="1.50" min="1.01" step="0.01" oninput="calcMeta()">
+          </div>
+        </div>
+
+
+        <div class="projection-box">
+          <div>
+            <div style="font-size:12px;color:#34d399;">Projeção de Meta Final</div>
+            <div style="font-size:11px;color:#64748b;margin-top:2px;" id="proj-sub">Se vencer todas as 10 etapas na odd 1.50</div>
+          </div>
+          <div style="font-size:22px;font-weight:700;color:#34d399;white-space:nowrap;" id="proj-val">R$ 57,67</div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:1.25rem;">
+          <button class="btn btn-ghost" onclick="goTo('dashboard')">Cancelar</button>
+          <button class="btn btn-primary" onclick="saveForm()">Iniciar Desafio →</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function calcMeta() {
+  const ini = parseFloat(document.getElementById('f-inicial')?.value)||0;
+  const odd = parseFloat(document.getElementById('f-odd')?.value)||1;
+  const etapas = parseInt(document.getElementById('f-etapas')?.value)||0;
+  const meta = ini > 0 && odd > 1 && etapas > 0 ? ini * Math.pow(odd, etapas) : 0;
+  const el = document.getElementById('proj-val');
+  const sub = document.getElementById('proj-sub');
+  if(el) el.textContent = fmtCur(meta);
+  if(sub) sub.textContent = `Se vencer todas as ${etapas} etapas na odd ${parseFloat(odd).toFixed(2)}`;
+}
+
+function saveForm() {
+  const nome = document.getElementById('f-nome').value.trim() || 'Minha Escadinha';
+  const ini = parseFloat(document.getElementById('f-inicial').value);
+  const odd = parseFloat(document.getElementById('f-odd').value);
+  const etapas = parseInt(document.getElementById('f-etapas').value);
+  if(!ini || !odd || !etapas || odd <= 1) return alert('Preencha todos os campos corretamente.');
+  const meta = ini * Math.pow(odd, etapas);
+  const prazoEl = document.getElementById('f-prazo');
+  const prazo = prazoEl && prazoEl.value ? parseInt(prazoEl.value) : null;
+  challenges.unshift({ id:genId(), nome, saldoInicial:ini, saldoAtual:ini, meta, totalEtapas:etapas, etapaAtual:0, oddAlvo:odd, dataInicio:new Date().toISOString(), status:'ativo', apostas:[], prazo });
+  save();
+  goTo('dashboard');
+}
+
+/* ---- DETAILS ---- */
+function renderDetails() {
+  const c = challenges.find(x=>x.id===activeId);
+  if(!c) return `<button class="btn btn-ghost" onclick="goTo('dashboard')">← Voltar</button>`;
+  const pct = Math.round((c.etapaAtual/c.totalEtapas)*100);
+  const profColor = c.status==='falhou'?'#f87171':'#34d399';
+  const badgeHtml = c.status==='ativo'?'<span class="badge badge-warning">Em Andamento</span>':
+    c.status==='concluido'?'<span class="badge badge-success">Concluído! 🎉</span>':
+    '<span class="badge badge-danger">Falhou</span>';
+
+  const tabContent = activeTab==='escada' ? renderLadder(c) :
+    activeTab==='historico' ? renderHistory(c) : renderSim(c);
+
+  return `
+    <button class="btn btn-ghost" onclick="goTo('dashboard')" style="margin-bottom:1rem;">← Voltar ao Dashboard</button>
+    <div class="card card-p" style="margin-bottom:1rem;position:relative;overflow:hidden;">
+      <div class="${c.status==='falhou'?'glow-red':'glow-green'}"></div>
+      <div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-start;gap:1rem;position:relative;z-index:1;">
+        <div>
+          <div style="display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:6px;">
+            <h1 style="font-size:22px;font-weight:700;color:#f1f5f9;">${escHtml(c.nome)}</h1>
+            ${badgeHtml}
+          </div>
+          <div style="font-size:12px;color:#64748b;">Odd Alvo: ${c.oddAlvo}</div>
+        </div>
+        <div style="background:#0f172a;border:1px solid #334155;border-radius:10px;padding:12px 16px;text-align:right;">
+          <div style="font-size:11px;color:#64748b;margin-bottom:4px;">Saldo Atual / Meta</div>
+          <div style="display:flex;align-items:baseline;gap:6px;justify-content:flex-end;">
+            <span style="font-size:22px;font-weight:700;color:${profColor};">${fmtCur(c.saldoAtual)}</span>
+            <span style="font-size:13px;color:#64748b;">/ ${fmtCur(c.meta)}</span>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:1.25rem;padding-top:1rem;border-top:1px solid #334155;display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+        <div style="flex:1;min-width:200px;">
+          <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;">
+            <span style="color:#cbd5e1;">Progresso</span>
+            <span style="color:#64748b;">Etapa ${c.etapaAtual} de ${c.totalEtapas}</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" style="width:${pct}%;background:${c.status==='falhou'?'#e11d48':'#10b981'};"></div></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          ${(c.status==='falhou'||c.status==='concluido')?`<button class="btn btn-outline btn-sm" onclick="resetChallenge('${c.id}')">↺ Reiniciar</button>`:''}
+          <button class="btn btn-sm" onclick="deleteChallenge('${c.id}')" style="background:rgba(225,29,72,0.1);border:1px solid rgba(225,29,72,0.2);color:#f87171;">🗑 Excluir</button>
+        </div>
+      </div>
+    </div>
+    <div class="tab-bar">
+      <button class="tab ${activeTab==='escada'?'active':''}" onclick="setTab('escada')">A Escadinha</button>
+      <button class="tab ${activeTab==='historico'?'active':''}" onclick="setTab('historico')">Histórico</button>
+      <button class="tab ${activeTab==='simulador'?'active':''}" onclick="setTab('simulador')">Simulador</button>
+    </div>
+    ${tabContent}`;
+}
+
+function setTab(t) { activeTab = t; render(); }
+
+/* ---- LADDER ---- */
+function renderLadder(c) {
+  const steps = Array.from({length:c.totalEtapas},(_,i)=>i+1);
+  let stepsHtml = steps.map((step, i) => {
+    const done = step <= c.etapaAtual;
+    const curr = step === c.etapaAtual+1 && c.status==='ativo';
+    const failedHere = c.status==='falhou' && step === c.etapaAtual+1;
+    const bet = c.apostas.find(a=>a.etapa===step);
+    let cls = done?'step-done':curr?'step-current':failedHere?'step-failed':'step-future';
+    const icon = done?'✓':failedHere?'✗':step;
+    const inner = done && bet
+      ? `<div style="font-size:12px;color:#94a3b8;">Apostou: ${fmtCur(bet.valorApostado)} · Odd: <span style="color:#34d399;">${bet.oddReal}</span></div><div style="font-size:12px;color:#34d399;margin-top:2px;">Retorno: ${fmtCur(bet.saldoApos)}</div>`
+      : failedHere
+      ? `<div style="font-size:12px;color:#f87171;">Escadinha quebrou aqui ☠️</div>`
+      : curr
+      ? `<div style="font-size:12px;color:#34d399;">Aguardando resultado... · ${fmtCur(c.saldoAtual)} na mesa</div>`
+      : `<div style="font-size:12px;color:#475569;">Aguardando etapa anterior...</div>`;
+    return `<div class="ladder-step ${cls}">
+      <div class="step-dot">${icon}</div>
+      <div class="step-content">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+          <span style="font-size:13px;font-weight:600;color:#e2e8f0;">Degrau ${step}</span>
+          ${bet?`<span style="font-size:11px;color:#64748b;">${fmtDate(bet.data)}</span>`:''}
+        </div>
+        ${inner}
+      </div>
+    </div>`;
+  }).join('');
+
+  let registerHtml = '';
+  if(c.status === 'ativo') {
+    const defReturn = (c.saldoAtual * c.oddAlvo).toFixed(2);
+    registerHtml = `
+      <div class="card card-p" style="border-color:rgba(16,185,129,0.3);">
+        <div style="font-size:15px;font-weight:600;margin-bottom:1rem;display:flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+          Registrar Etapa ${c.etapaAtual+1}
+        </div>
+        <div style="background:#0f172a;border-radius:8px;padding:10px 14px;margin-bottom:12px;">
+          <div style="font-size:11px;color:#64748b;">Valor a Apostar (All-in)</div>
+          <div style="font-size:20px;font-weight:700;font-family:monospace;">${fmtCur(c.saldoAtual)}</div>
+        </div>
+        <label class="input-label" for="ret-val">Valor Retornado na Aposta (R$)</label>
+        <input class="input-field" id="ret-val" type="number" step="0.01" value="${defReturn}" style="margin-bottom:1rem;">
+        <div style="display:flex;gap:8px;">
+          <button class="result-btn red-btn" onclick="registerResult('${c.id}','perdeu')">RED ❌</button>
+          <button class="result-btn green-btn" onclick="registerResult('${c.id}','ganhou')">GREEN ✅</button>
+        </div>
+        <div style="font-size:11px;color:#64748b;text-align:center;margin-top:8px;">Ação irreversível.</div>
+      </div>`;
+  }
+
+  return `<div class="details-grid" style="display:grid;grid-template-columns:${c.status==='ativo'?'1fr 280px':'1fr'};gap:1.5rem;align-items:start;">
+    <div>${stepsHtml}</div>
+    ${registerHtml ? `<div>${registerHtml}</div>` : ''}
+  </div>`;
+}
+
+/* ---- HISTORY ---- */
+function renderHistory(c) {
+  if(!c.apostas.length) return `<div class="card card-p empty-state"><div class="empty-icon">📋</div><p style="color:#64748b;">Nenhuma aposta registrada ainda.</p></div>`;
+  const rows = c.apostas.map(a=>`<tr>
+    <td style="font-weight:600;">${a.etapa}</td>
+    <td style="color:#64748b;">${fmtDate(a.data)}</td>
+    <td style="font-family:monospace;">${fmtCur(a.valorApostado)}</td>
+    <td>${a.oddReal}</td>
+    <td>${a.resultado==='ganhou'?'<span class="badge badge-success">Green</span>':'<span class="badge badge-danger">Red</span>'}</td>
+    <td style="font-weight:700;color:${a.resultado==='ganhou'?'#34d399':'#64748b'}">${fmtCur(a.saldoApos)}</td>
+  </tr>`).join('');
+  return `<div class="card" style="overflow-x:auto;">
+    <table class="hist-table">
+      <thead><tr>
+        <th>Etapa</th><th>Data</th><th>Apostado</th><th>Odd Real</th><th>Resultado</th><th>Saldo Final</th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+  </div>`;
+}
+
+/* ---- SIMULATOR ---- */
+function renderSim(c) {
+  const odd = c.oddAlvo, etapas = c.totalEtapas, stake = c.saldoInicial;
+  let data = [], cur = stake;
+  for(let i=1;i<=etapas;i++) { cur = cur*odd; data.push({step:i,bal:cur}); }
+  const max = data[data.length-1]?.bal||1;
+  const mult = (max/stake).toFixed(2);
+  const mid = data[Math.floor(data.length/2)]?.bal||0;
+  const bars = data.map(d=>{
+    const h = Math.max(5,(d.bal/max)*100);
+    return `<div class="chart-bar" title="Degrau ${d.step}: ${fmtCur(d.bal)}">
+      <div class="chart-bar-fill" style="height:${h}%;"></div>
+      <span class="chart-bar-label">${d.step}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="grid-2" style="align-items:start;">
+    <div class="card card-p">
+      <div style="font-size:15px;font-weight:600;margin-bottom:1rem;">🧮 Parâmetros</div>
+      <div style="background:#0f172a;padding:12px;border-radius:8px;font-size:13px;color:#94a3b8;line-height:1.8;">
+        <div>Capital Inicial: <strong style="color:#f1f5f9;">${fmtCur(stake)}</strong></div>
+        <div>Odd por Etapa: <strong style="color:#f1f5f9;">${odd}</strong></div>
+        <div>Total de Degraus: <strong style="color:#f1f5f9;">${etapas}</strong></div>
+      </div>
+      <div style="background:#0f172a;border-radius:10px;padding:1rem;margin-top:1rem;text-align:center;">
+        <div style="font-size:11px;color:#64748b;margin-bottom:4px;">Lucro Projetado (All Greens)</div>
+        <div style="font-size:24px;font-weight:700;color:#34d399;">${fmtCur(max)}</div>
+      </div>
+      <div class="grid-2" style="margin-top:1rem;text-align:center;gap:8px;">
+        <div style="background:#0f172a;padding:10px;border-radius:8px;">
+          <div style="font-size:10px;color:#64748b;">Múltiplo</div>
+          <div style="font-size:18px;font-weight:700;">${mult}x</div>
+        </div>
+        <div style="background:#0f172a;padding:10px;border-radius:8px;">
+          <div style="font-size:10px;color:#64748b;">Metade do caminho</div>
+          <div style="font-size:14px;font-weight:700;">${fmtCur(mid)}</div>
+        </div>
+      </div>
+    </div>
+    <div class="card card-p">
+      <div style="font-size:15px;font-weight:600;margin-bottom:1rem;">📈 Evolução do Capital</div>
+      <div class="chart-wrap">${bars}</div>
+    </div>
+  </div>`;
+}
+
+/* ---- ACTIONS ---- */
+function registerResult(id, result) {
+  const c = challenges.find(x=>x.id===id);
+  if(!c) return;
+  const stake = c.saldoAtual;
+  const retInput = parseFloat(document.getElementById('ret-val')?.value)||0;
+  let newBal = stake, newStatus = c.status, newStep = c.etapaAtual, realOdd = c.oddAlvo;
+  if(result==='ganhou') {
+    newBal = retInput || stake*c.oddAlvo;
+    realOdd = stake>0 ? Number((newBal/stake).toFixed(2)) : c.oddAlvo;
+    newStep++;
+    if(newStep >= c.totalEtapas) newStatus = 'concluido';
+  } else {
+    newBal = 0; newStatus = 'falhou'; realOdd = 0;
+  }
+  const bet = { id:genId(), data:new Date().toISOString(), etapa:c.etapaAtual+1, oddReal:realOdd, valorApostado:stake, resultado:result, saldoApos:newBal };
+  const updatedC = {...c, saldoAtual:newBal, etapaAtual:newStep, status:newStatus, apostas:[...c.apostas,bet]};
+  challenges = challenges.map(x=>x.id===id ? updatedC : x);
+  save(); render();
+  if(newStatus === 'concluido') setTimeout(() => showCeleb(updatedC), 400);
+}
+
+function resetChallenge(id) {
+  showConfirm('Reiniciar Desafio','Isso apagará o histórico e reiniciará o saldo. Tem certeza?', ()=>{
+    challenges = challenges.map(c=>c.id===id ? {...c, saldoAtual:c.saldoInicial, etapaAtual:0, status:'ativo', apostas:[]} : c);
+    save(); render();
+  });
+}
+
+function deleteChallenge(id) {
+  showConfirm('Excluir Escadinha','Deseja excluir esta escadinha permanentemente?', ()=>{
+    challenges = challenges.filter(c=>c.id!==id);
+    save();
+    if(activeId===id) goTo('dashboard'); else render();
+  });
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function showCeleb(c) {
+  const lucro = c.saldoAtual - c.saldoInicial;
+  const mult = c.saldoInicial > 0 ? (c.saldoAtual / c.saldoInicial).toFixed(2) : '—';
+  document.getElementById('celeb-title').textContent = '🎉 ' + c.nome + ' — Concluído!';
+  document.getElementById('celeb-sub').textContent =
+    'Incrível! Você subiu todos os ' + c.totalEtapas + ' degraus dessa escadinha com muita garra. Sua banca cresceu ' + mult + 'x. Isso é evolução real!';
+  document.getElementById('celeb-stats').innerHTML =
+    '<div class="celeb-stat"><div class="celeb-stat-val">' + fmtCur(c.saldoInicial) + '</div><div class="celeb-stat-label">Capital Inicial</div></div>' +
+    '<div class="celeb-stat"><div class="celeb-stat-val">' + fmtCur(c.saldoAtual) + '</div><div class="celeb-stat-label">Saldo Final</div></div>' +
+    '<div class="celeb-stat"><div class="celeb-stat-val">+' + fmtCur(lucro) + '</div><div class="celeb-stat-label">Lucro Total</div></div>';
+  // spawn confetti
+  const container = document.getElementById('confetti-container');
+  container.innerHTML = '';
+  const colors = ['#10b981','#34d399','#fbbf24','#60a5fa','#f472b6','#a78bfa','#fb923c'];
+  for(let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'confetti-piece';
+    p.style.left = Math.random() * 100 + '%';
+    p.style.background = colors[Math.floor(Math.random() * colors.length)];
+    p.style.width = (6 + Math.random() * 8) + 'px';
+    p.style.height = (6 + Math.random() * 8) + 'px';
+    p.style.animationDuration = (2 + Math.random() * 3) + 's';
+    p.style.animationDelay = (Math.random() * 2) + 's';
+    p.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+    container.appendChild(p);
+  }
+  document.getElementById('celeb-overlay').classList.add('open');
+}
+
+function closeCeleb() {
+  document.getElementById('celeb-overlay').classList.remove('open');
+  document.getElementById('confetti-container').innerHTML = '';
+}
+
+load();
+(function(){
+  const t = localStorage.getItem('@EscadinhaPro:theme');
+  if(t === 'light') {
+    document.body.classList.add('light');
+    document.getElementById('theme-icon-moon').style.display = 'none';
+    document.getElementById('theme-icon-sun').style.display = 'inline';
+  }
+})();
+render();
+</script>
+</body>
+</html>
